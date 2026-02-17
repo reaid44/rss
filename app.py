@@ -131,6 +131,8 @@ def home():
             "published": row[5]
         })
 
+        return render_template("index.html", news=news_list)
+
     return jsonify(result)
 
 
