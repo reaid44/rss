@@ -9,3 +9,7 @@ news.db
 .env
 .vscode/
 *.sqlite3
+
+# Note: git workflow commands were removed from this file.
+# Keep repository setup steps in README.md (not in .gitignore).
+
