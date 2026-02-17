@@ -1,9 +1,10 @@
-from flask import Flask, jsonify
-import feedparser
+from flask import Flask, render_template, jsonify
 import sqlite3
-import requests
-from bs4 import BeautifulSoup
 from datetime import datetime
+
+from services.rss_parser import parse_feeds
+from services.thumbnail_detector import get_thumbnail
+from services.duplicate_filter import save_news_items
 
 app = Flask(__name__)
 
@@ -42,69 +43,22 @@ def init_db():
     conn.close()
 
 
-# -------------------------
-# Thumbnail Detect
-# -------------------------
-
-def get_thumbnail(entry):
-    # Method 1: RSS media
-    if 'media_content' in entry:
-        return entry.media_content[0]['url']
-
-    if 'links' in entry:
-        for link in entry.links:
-            if link.get('type', '').startswith('image'):
-                return link.href
-
-    # Method 2: Scrape og:image
-    try:
-        response = requests.get(entry.link, timeout=5)
-        soup = BeautifulSoup(response.text, "html.parser")
-        og = soup.find("meta", property="og:image")
-        if og:
-            return og["content"]
-    except:
-        pass
-
-    # Fallback
-    return "https://via.placeholder.com/300x200.png?text=No+Image"
+# Thumbnail detection moved to `services/thumbnail_detector.py`
 
 
 # -------------------------
-# Fetch RSS
+# Fetch RSS (delegates to services)
 # -------------------------
 
 def fetch_news():
+    items = parse_feeds(RSS_FEEDS, max_entries=10)
+
+    # ensure each item has a thumbnail (service handles media/link/scrape)
+    for item in items:
+        item['thumbnail'] = get_thumbnail(item)
+
     conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-
-    for category, feeds in RSS_FEEDS.items():
-        for source_name, url in feeds:
-            feed = feedparser.parse(url)
-
-            for entry in feed.entries[:10]:
-                title = entry.title
-                link = entry.link
-                published = entry.get("published", "")
-                thumbnail = get_thumbnail(entry)
-
-                try:
-                    c.execute("""
-                        INSERT INTO news (title, link, source, category, thumbnail, published, created_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        title,
-                        link,
-                        source_name,
-                        category,
-                        thumbnail,
-                        published,
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    ))
-                    conn.commit()
-                except:
-                    pass  # duplicate ignore
-
+    save_news_items(conn, items)
     conn.close()
 
 
@@ -120,9 +74,9 @@ def home():
     rows = c.fetchall()
     conn.close()
 
-    result = []
+    news_list = []
     for row in rows:
-        result.append({
+        news_list.append({
             "title": row[0],
             "link": row[1],
             "source": row[2],
@@ -131,9 +85,8 @@ def home():
             "published": row[5]
         })
 
-        return render_template("index.html", news=news_list)
-
-    return jsonify(result)
+    # render template with the news list
+    return render_template("index.html", news=news_list)
 
 
 @app.route("/update")

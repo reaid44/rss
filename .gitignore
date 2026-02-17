@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local SQLite DB
+news.db
+
+# Editor / environment
+.env
+.vscode/
+*.sqlite3
