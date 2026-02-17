@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RSS News</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Latest News</h1>
+
+<div class="news-container">
+    {% for item in news %}
+    <div class="card">
+        <img src="{{ item.thumbnail }}" alt="thumbnail">
+        <div class="content">
+            <h2><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h2>
+            <p>{{ item.source }} | {{ item.category }}</p>
+            <small>{{ item.published }}</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
