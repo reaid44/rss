@@ -1,0 +1,10 @@
+<div class="card">
+    {% if item.thumbnail %}
+        <img src="{{ item.thumbnail }}" alt="Thumbnail">
+    {% endif %}
+    <div class="content">
+        <h2><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h2>
+        <p><strong>Source:</strong> {{ item.source }}</p>
+        <p><small>{{ item.published }}</small></p>
+    </div>
+</div>

@@ -1,25 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>RSS News</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>TRY HARD - News</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- Site Header -->
+  <header>
+    <span>TRY HARD</span>
+  </header>
 
-<h1>Latest News</h1>
+  <!-- Navigation Bar -->
+  <nav aria-label="Main Navigation">
+    <a href="#International">International</a>
+    <a href="#Bangladesh">Bangladesh</a>
+    <a href="#Sports">Sports</a>
+    <a href="#Politics">Politics</a>
+  </nav>
 
-<div class="news-container">
-    {% for item in news %}
-    <div class="card">
-        <img src="{{ item.thumbnail }}" alt="thumbnail">
-        <div class="content">
-            <h2><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h2>
-            <p>{{ item.source }} | {{ item.category }}</p>
-            <small>{{ item.published }}</small>
+  <!-- Banner/Hero Section -->
+  {% include 'banner.html' %}
+
+  <!-- Main Content -->
+  <main>
+    {% for category, articles in grouped_news.items() %}
+      <section class="category-section" id="{{ category }}">
+        <h2 class="category-title">{{ category }}</h2>
+        <div class="news-grid">
+          {% for article in articles %}
+            <article class="news-card" tabindex="0">
+              <img src="{{ article.thumbnail or 'https://via.placeholder.com/300x150?text=News+Image' }}"
+                   alt="{{ article.title or 'News Image' }}"
+                   loading="lazy"
+                   width="300" height="150">
+              <div class="card-content">
+                <h3 class="card-title">{{ article.title or "News Title" }}</h3>
+                <p class="card-description">{{ article.summary or "Short summary of the news article goes here." }}</p>
+              </div>
+            </article>
+          {% endfor %}
         </div>
-    </div>
+      </section>
     {% endfor %}
-</div>
+  </main>
 
+  <!-- Footer -->
+  <footer>
+    &copy; {{ current_year }} TRY HARD News. All rights reserved.
+  </footer>
 </body>
 </html>

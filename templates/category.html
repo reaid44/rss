@@ -1,0 +1,8 @@
+<section class="category" id="{{ category }}">
+    <h1>{{ category }}</h1>
+    <div class="news-container">
+        {% for item in items %}
+            {% include "card.html" %}
+        {% endfor %}
+    </div>
+</section>
