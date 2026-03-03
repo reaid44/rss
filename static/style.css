@@ -38,7 +38,7 @@ nav[aria-label="Main Navigation"] a {
   font-size: 1rem;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, transform 0.08s;
   position: relative;
 }
 nav[aria-label="Main Navigation"] a:hover,
@@ -46,36 +46,81 @@ nav[aria-label="Main Navigation"] a:focus {
   background-color: #0074D9;
   color: #fff;
   outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
-/* Banner/Hero Section */
+/* Banner/Hero Section
+   - Banner image still full-bleed (covers full width)
+   - But content inside .banner-inner is constrained (reduces left/right space)
+   - Height kept as requested (desktop 240px, tablet 180px, mobile 120px)
+*/
+/* Banner container: full width, fixed height (you kept height same) */
+/* Banner container */
 .banner {
-  width: 100%;
-  height: 320px;
+  width: 78%;                /* আগে 100% ছিল, এখন 90% করলে দুই পাশে ফাঁকা থাকবে */
+  height: 450px;             /* desktop height */
   background-color: #000;
-  background-size: cover;
-  background-position: center;
   position: relative;
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: center;
   overflow: hidden;
+  margin: 0 auto;            /* ব্যানারকে মাঝখানে বসাবে */
+  border-radius: 8px;        /* চাইলে কোণ গোল করতে পারো */
 }
+
+/* Actual image shown fully without cropping */
+.banner-img {
+  position: absolute;
+  inset: 0; /* shorthand for top:0; right:0; bottom:0; left:0 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* container পুরো ভরবে */
+  object-position: center; /* ছবির কেন্দ্র অংশে focus থাকবে */
+  display: block;
+  z-index: 0;
+  background-color: #000;
+}
+
+/* Constrained inner container so left/right look reduced */
+.banner-inner {
+  width: 100%;
+  max-width: 1100px;           /* adjust to make sides narrower (900,1000,1100) */
+  padding: 0 20px;             /* left/right gutter */
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start; /* keep H1 at left inside the constrained area */
+  z-index: 2;                  /* above the image */
+}
+
+/* H1 left bottom style */
 .banner h1 {
-  margin: 0 0 24px 24px;
+  margin: 0 0 18px 0;
   color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  padding: 14px 24px;
+  background: rgba(0,0,0,0.55);
+  padding: 12px 20px;
   border-radius: 6px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  max-width: 90vw;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
+/* Responsive heights and inner width */
+@media (max-width: 900px) {
+  .banner { height: 180px; }
+  .banner-inner { max-width: 900px; padding: 0 16px; }
+  .banner h1 { font-size: 1.4rem; padding: 10px 14px; margin-bottom: 14px; }
+}
+@media (max-width: 600px) {
+  .banner { height: 120px; }
+  .banner-inner { max-width: 640px; padding: 0 12px; }
+  .banner h1 { font-size: 1.05rem; padding: 8px 12px; margin-bottom: 10px; }
+}
 /* Main Content */
 main {
-  padding: 32px 16px 0 16px;
+  padding: 28px 16px 0 16px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -157,8 +202,9 @@ main {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* vendor-prefixed for WebKit */
+  line-clamp: 3;         /* standard property for compatibility */
 }
 
 /* Footer */
@@ -174,17 +220,19 @@ footer {
   box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
 }
 
-/* Responsive Design */
+/* Responsive Design: keep banner height same but inner container narrower on small screens */
 @media (max-width: 900px) {
-  .banner { height: 220px; }
-  main { padding: 24px 8px 0 8px; }
+  .banner { height: 180px; }   /* Tablet height unchanged as requested */
+  .banner-inner { max-width: 900px; padding: 0 16px; }
+  main { padding: 20px 8px 0 8px; }
   .category-title { font-size: 1.25rem; }
   .news-card img { height: 120px; }
 }
 @media (max-width: 600px) {
   header { font-size: 1.3rem; padding: 16px 0 10px 0; }
-  .banner { height: 140px; }
-  .banner h1 { font-size: 1.1rem; padding: 8px 12px; margin: 0 0 10px 10px; }
+  .banner { height: 120px; }   /* Mobile height unchanged as requested */
+  .banner-inner { max-width: 640px; padding: 0 12px; }
+  .banner h1 { font-size: 1.05rem; padding: 8px 12px; margin: 0 0 8px 0; }
   .category-title { font-size: 1.08rem; padding-bottom: 5px; }
   .news-card img { height: 80px; }
   .card-title { font-size: 1rem; }
